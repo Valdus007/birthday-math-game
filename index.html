@@ -3,90 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chúc mừng sinh nhật 🎉</title>
+    <title>Game Sinh Nhật</title>
     <style>
         body {
             text-align: center;
             font-family: Arial, sans-serif;
-            background-color: #222;
-            color: white;
-            overflow: hidden;
+            background-color: #fce4ec;
         }
-
-        #question {
-            font-size: 20px;
-            margin-top: 50px;
-        }
-
-        #answer {
-            padding: 10px;
-            font-size: 18px;
-        }
-
-        #cake {
+        .hidden {
             display: none;
-            margin-top: 20px;
         }
-
-        .firework {
+        #cake {
+            font-size: 20px;
+            color: #ff4081;
+        }
+        .fireworks {
             position: absolute;
-            width: 10px;
-            height: 10px;
-            background-color: yellow;
-            border-radius: 50%;
-            animation: explode 2s linear infinite;
-        }
-
-        @keyframes explode {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(3); opacity: 0; }
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
-
-    <h1>🔢 Hãy tìm số S thỏa mãn:</h1>
-    <p id="question">S = (21040 + 40031)^2 + (40031 - 21040)^2</p>
-    
-    <input type="number" id="answer" placeholder="Nhập kết quả">
+    <h1>🔢 Hãy tìm số S thỏa mãn điều kiện sau:</h1>
+    <p>S = (1453 + 2027)^2 + (2027 - 1453)^2</p>
+    <input type="number" id="answer" placeholder="Nhập kết quả của bạn">
     <button onclick="checkAnswer()">Kiểm tra</button>
-    
-    <div id="cake">
-        <h2>🎂 Chúc mừng sinh nhật! 🎉</h2>
+    <p id="result"></p>
+    <div id="cake" class="hidden">
+        🎂🎉 Chúc mừng sinh nhật! 🎉🎂<br>
         <pre>
-           i i i i i
-          |"""""""""|
-          |  HAPPY  |
-          | BIRTHDAY|
-          |_________|
-         (___________)
+        i i i i i i i
+      |"""""""""""""""""|
+      |  H A P P Y  |
+      |  B I R T H  |
+      |  D A Y  !  |
+      @@@@@@@@@@@@@@@@
+     {###############}
+    {#################}
+   {###################}
+  {#####################}
+ {#######################}
         </pre>
     </div>
-
+    <canvas id="fireworks" class="fireworks"></canvas>
+    
     <script>
         function checkAnswer() {
-            let answer = document.getElementById("answer").value;
-            let correctAnswer = Math.pow((21040 + 40031), 2) + Math.pow((40031 - 21040), 2);
-            
-            if (answer == correctAnswer) {
-                document.getElementById("cake").style.display = "block";
-                createFireworks();
+            const correctAnswer = (1453 + 2027) ** 2 + (2027 - 1453) ** 2;
+            const userAnswer = document.getElementById("answer").value;
+            const result = document.getElementById("result");
+            if (parseInt(userAnswer) === correctAnswer) {
+                result.innerHTML = "✅ Đúng rồi! Chúc mừng bạn!";
+                document.getElementById("cake").classList.remove("hidden");
+                startFireworks();
             } else {
-                alert("❌ Sai rồi! Hãy thử lại nhé!");
+                result.innerHTML = "❌ Sai rồi! Hãy thử lại nhé!";
             }
         }
 
-        function createFireworks() {
-            for (let i = 0; i < 30; i++) {
-                let firework = document.createElement("div");
-                firework.classList.add("firework");
-                document.body.appendChild(firework);
-                firework.style.left = Math.random() * window.innerWidth + "px";
-                firework.style.top = Math.random() * window.innerHeight + "px";
-                setTimeout(() => firework.remove(), 2000);
+        function startFireworks() {
+            const canvas = document.getElementById("fireworks");
+            const ctx = canvas.getContext("2d");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const particles = [];
+            function createParticle(x, y) {
+                return {
+                    x,
+                    y,
+                    radius: Math.random() * 4 + 1,
+                    color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                    speedX: (Math.random() - 0.5) * 8,
+                    speedY: (Math.random() - 0.5) * 8,
+                    life: 100
+                };
             }
+            for (let i = 0; i < 100; i++) {
+                particles.push(createParticle(canvas.width / 2, canvas.height / 2));
+            }
+            function animateFireworks() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((p, index) => {
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    p.life--;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                    if (p.life <= 0) {
+                        particles.splice(index, 1, createParticle(canvas.width / 2, canvas.height / 2));
+                    }
+                });
+                requestAnimationFrame(animateFireworks);
+            }
+            animateFireworks();
         }
     </script>
-
 </body>
 </html>
